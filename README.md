@@ -10,8 +10,7 @@ DataLemur is a platform to help us practice questions for SQL, Python, Machine L
 3. [Page With No Likes [Facebook SQL Interview]](#easy3)
 4. [Unfinished Parts[Tesla SQL Interview Question]](#easy4)
 
-## Python-Easy
-1. 
+## SQL-Medium
 ---
 
 ### <a id="easy1"></a>Histogram of Tweets [Twitter SQL Interview]
