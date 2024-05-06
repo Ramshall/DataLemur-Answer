@@ -10,8 +10,6 @@ DataLemur is a platform to help us practice questions for SQL, Python, Machine L
 3. [Page With No Likes [Facebook SQL Interview]](#easy3)
 4. [Unfinished Parts[Tesla SQL Interview Question]](#easy4)
 
-## SQL-Medium
----
 
 ### <a id="easy1"></a>1. Histogram of Tweets [Twitter SQL Interview]
 Assume you're given a table Twitter tweet data, write a query to obtain a histogram of tweets posted per user in 2022. Output the tweet count per user as the bucket and the number of Twitter users who fall into that bucket.
