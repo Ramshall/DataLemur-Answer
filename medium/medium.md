@@ -3,8 +3,6 @@
 1. [Tweets Rolling Averages [Twitter SQL Interview]](#medium1)
 2. [User's Third Transaction[Uber SQL Interview Question]](#medium2)
 3. [Sending vs. Opening Snaps [Snapchat SQL Interview Question]](#medium3)
-4. [Unfinished Parts[Tesla SQL Interview Question]](#medium4)
-5. [Top 5 Artists [Spotify SQL Interview Question]](#medium5)
 
    
 ### <a id="medium1"></a>1. Tweets Rolling Averages [Twitter SQL Interview]
