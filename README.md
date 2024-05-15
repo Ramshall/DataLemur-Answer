@@ -10,7 +10,19 @@ DataLemur is a platform to help us practice questions for SQL, Python, Machine L
 3. [Page With No Likes [Facebook SQL Interview]](#easy3)
 4. [Unfinished Parts [Tesla SQL Interview Question]](#easy4)
 5. [Laptop vs. Mobile Viewership [New York Times SQL Interview Question]](#easy5)
-6. [Average Post Hiatus (Part 1) [Facebook SQL Interview Question]](#easy6) 
+6. [Average Post Hiatus (Part 1) [Facebook SQL Interview Question]](#easy6)
+7. [Teams Power Users [Microsoft SQL Interview Question]](#easy7)
+8. [Duplicate Job Listings [Linkedin SQL Interview Question]](#easy8)
+9. [Cities With Completed Trades [Robinhood SQL Interview Question]](#easy9)
+10. [Average Review Ratings [Amazon SQL Interview Question]](#easy10)
+11. [App Click-through Rate (CTR) [Facebook SQL Interview Question]](#easy11)
+12. [Second Day Confirmation [Tiktok SQL Interview Question]](#easy12)
+13. [Cards Issued Difference [JPMorgan SQL Interview Question]](#easy13)
+14. [Compressed Mean [Alibaba SQL Interview Question]](#easy14)
+15. [Pharmacy Analytics (Part 1) [CVS Health Interview Question]](#easy15)
+16. [Pharmacy Analytics (Part 2) [CVS Health SQL Interview Question]](#easy16)
+17. [Pharmacy Analytics (Part 3) [CVS Health SQL Interview Question]](#easy17)
+18. [Patient Support Analysis (Part 1) [UnitedHelath SQL Interview Question]](#easy18)
 
 
 ### <a id="easy1"></a>1. Histogram of Tweets [Twitter SQL Interview]
@@ -459,3 +471,272 @@ Given a table of Facebook posts, for each user who posted at least twice in 2021
 |-----------|-----------|
 |  151652  |	  2   |
 |  661093  |    21  |
+
+**My Answer**
+<details>
+  <summary>Click to reveal my query</summary>
+<pre><code>
+SELECT
+  user_id,
+  DATE_PART('day', MAX(post_date) - MIN(post_date)) AS days_between
+FROM
+  posts
+WHERE
+  post_date BETWEEN '2021-01-01' AND '2021-12-31'
+GROUP BY
+  user_id
+HAVING 
+  COUNT(*) > 1
+ORDER BY 
+  user_id;
+</code></pre>
+</details>
+
+**The Solution#1**
+<details>
+  <summary>Click to reveal the first solution </summary>
+<pre><code>
+SELECT 
+	user_id, 
+    MAX(post_date::DATE) - MIN(post_date::DATE) AS days_between
+FROM posts
+WHERE DATE_PART('year', post_date::DATE) = 2021 
+GROUP BY user_id
+HAVING COUNT(post_id)>1;
+</code></pre>
+</details>
+
+### <a id="easy7"></a>7. Teams Power Users [Microsoft SQL Interview Question]
+Write a query to identify the top 2 Power Users who sent the highest number of messages on Microsoft Teams in August 2022. Display the IDs of these 2 users along with the total number of messages they sent. Output the results in descending order based on the count of the messages.
+
+Assumption:
+* No two users have sent the same number of messages in August 2022.
+
+`messages` **Table**:
+|Column Name|	Type |
+|-----------|-----------|
+|message_id| integer   |
+|sender_id| integer   |
+|receiver_id| integer     |
+|content| varchar |
+|sent_date| datetime |
+
+`message` **Example Input**:
+|message_id|sender_id|receiver_id|content|sent_date|
+|----------|---------|-----------|-----------------------------------|------------------|
+|901|	3601 |	4500	 |  You up?	 |  08/03/2022 00:00:00  |
+|902|	4500 |	3601	 |Only if you're buying	|08/03/2022 00:00:00|
+|743|	3601 |	8752	 |Let's take this offline|	06/14/2022 00:00:00  |
+|922|	3601 |	4500	 | Get on the call	|08/10/2022 00:00:00|
+
+
+**Example Output:**
+|sender_id|	message_count |
+|---------|---------------|
+|  3601   |        2      |
+|  4500   |        1      |
+
+The dataset you are querying against may have different input & ouput - **this is just an example!**
+
+**My Answer**
+<details>
+  <summary>Click to reveal my query</summary>
+<pre><code>
+SELECT 
+  sender_id,
+  COUNT(content) AS message_count
+FROM
+  messages
+WHERE 
+  sent_date BETWEEN '2022-08-01' AND '2022-08-31'
+GROUP BY
+    sender_id
+ORDER BY 
+  message_count DESC
+LIMIT 2
+</code></pre>
+</details>
+
+**The Solution#1**
+<details>
+  <summary>Click to reveal the first solution </summary>
+<pre><code>
+SELECT 
+  sender_id,
+  COUNT(message_id) AS count_messages
+FROM messages
+WHERE EXTRACT(MONTH FROM sent_date) = '8'
+  AND EXTRACT(YEAR FROM sent_date) = '2022'
+GROUP BY sender_id
+ORDER BY count_messages DESC
+LIMIT 2;
+</code></pre>
+</details>
+
+### <a id="easy8"></a>8. Duplicate Job Listings [Linkedin SQL Interview Question]
+Assume you're given a table containing job postings from various companies on the LinkedIn platform. Write a query to retrieve the count of companies that have posted duplicate job listings.
+
+Definition:
+* Duplicate job listings are defined as two job listings within the same company that share identical titles and descriptions.
+
+`job_listings` **Table**:
+|Column Name|	  Type   |
+|-----------|----------|
+|job_id     |  integer |
+|company_id |  string  |
+|title      |  string  |
+|description|  string  |
+
+`job_listings` **Example Input**:
+|job_id|company_id|  title  |    description    |
+|------|----------|---------|-------------------|
+|  248 |	 827	  |Business Analyst|	Business analyst evaluates past and current business data with the primary goal of improving decision-making processes within organizations.|
+|  149 |	 845	  |Business Analyst|	Business analyst evaluates past and current business data with the primary goal of improving decision-making processes within organizations.|
+|  945 |	 345	  |Data Analyst|	Data analyst reviews data to identify key insights into a business's customers and ways the data can be used to solve problems.|
+|  164 |	 345	  |Data Analyst|	Data analyst reviews data to identify key insights into a business's customers and ways the data can be used to solve problems.|
+|  172 |	 244	  |Data Engineer|	Data engineer works in a variety of settings to build systems that collect, manage, and convert raw data into usable information for data scientists and business analysts to interpret.|
+
+**My Answer**
+<details>
+  <summary>Click to reveal my query</summary>
+<pre><code>
+SELECT
+  COUNT(x.company_id) AS duplicate_companies
+FROM
+  (SELECT
+    company_id,
+    title,
+    description,
+    COUNT(company_id) AS total_company
+  FROM
+    job_listings
+  GROUP BY 1, 2, 3) x
+WHERE
+  x.total_company > 1;
+</code></pre>
+</details>
+
+**The Solution#1 (CTE)**
+<details>
+  <summary>Click to reveal the first solution </summary>
+<pre><code>
+WITH job_count_cte AS (
+  SELECT 
+    company_id, 
+    title, 
+    description, 
+    COUNT(job_id) AS job_count
+  FROM job_listings
+  GROUP BY company_id, title, description
+)
+
+SELECT COUNT(DISTINCT company_id) AS duplicate_companies
+FROM job_count_cte
+WHERE job_count > 1;
+</code></pre>
+</details>
+
+**The Solution#2 (subqueries)**
+<details>
+  <summary>Click to reveal the second solution </summary>
+<pre><code>
+SELECT COUNT(DISTINCT company_id) AS duplicate_companies
+FROM (
+  SELECT 
+    company_id, 
+    title, 
+    description, 
+    COUNT(job_id) AS job_count
+  FROM job_listings
+  GROUP BY company_id, title, description
+) AS job_count_cte
+WHERE job_count > 1;
+</code></pre>
+</details>
+
+### <a id="easy9"></a>9. Cities With Completed Trades [Robinhood SQL Interview Question]
+Assume you're given the tables containing completed trade orders and user details in a Robinhood trading system.
+
+Write a query to retrieve the top three cities that have the highest number of completed trade orders listed in descending order. Output the city name and the corresponding number of completed trade orders.
+
+`trades` **Table**:
+|Column Name|	  Type   |
+|-----------|-------------------|
+|order_id|integer|
+|user_id|integer|
+|quantity|	integer|
+|status|	string ('Completed', 'Cancelled')|
+|date|	timestamp|
+|price|	decimal (5, 2)|
+
+`trades` **Example Input**:
+|order_id|	user_id  |	quantity  |	status  |	       date       |	price  |
+|--------|-----------|------------|---------|-------------------|--------|
+|100101|	111	|  10	|  Cancelled  |	 08/17/2022 12:00:00	|  9.80  |
+|100102|	111	|  10 |	 Completed	|  08/17/2022 12:00:00	|  10.00 |
+|100259|	148	|  35	|  Completed	|  08/25/2022 12:00:00	|  5.10  |
+|100264|	148	|  40	|  Completed	|  08/26/2022 12:00:00	|  4.80  |
+|100305|	300	|  15	|  Completed	|  09/05/2022 12:00:00	|  10.00 |
+|100400|	178	|  32	|  Completed	|  09/17/2022 12:00:00	|  12.00 |
+|100565|	265	|  2	|  Completed	|  09/27/2022 12:00:00	|  8.70  |
+
+`users` **Table**:
+|Column Name|	Type|
+|-------------|------|
+|user_id|	integer|
+|city|	string|
+|email|	string|
+|signup_date|	datetime|
+
+`users` **Example Input**:
+|user_id|	city	|email|	signup_date |
+|-------|-------------|----------------|------------------------|
+|111|	San Francisco	|rrok10@gmail.com|	08/03/2021 12:00:00|
+|148|	Boston	|sailor9820@gmail.com|	08/20/2021 12:00:00|
+|178|	San Francisco	|harrypotterfan182@gmail.com|	01/05/2022 12:00:00|
+|265|	Denver	|shadower_@hotmail.com|	02/26/2022 12:00:00|
+
+**Example Output:**
+|city|	total_orders  |
+|-------------|-------|
+|San Francisco|	  3   |
+|Boston|	2  |
+|Denver|	1  |
+
+
+In the given dataset, San Francisco has the highest number of completed trade orders with 3 orders. Boston holds the second position with 2 orders, and Denver ranks third with 1 order.
+300	San Francisco	houstoncowboy1122@hotmail.com	06/30/2022 12:00:00
+
+**My Answer**
+<details>
+  <summary>Click to reveal my query</summary>
+<pre><code>
+SELECT 
+  x.city,
+  count(x.city) AS total_orders
+FROM
+  users x
+LEFT JOIN trades y ON x.user_id = y.user_id
+WHERE y.status = 'Completed'
+GROUP BY 1
+ORDER BY total_orders DESC
+LIMIT 3;
+</code></pre>
+</details>
+
+**The Solution#1**
+<details>
+  <summary>Click to reveal the first solution </summary>
+<pre><code>
+SELECT 
+  x.city,
+  count(x.city) AS total_orders
+FROM
+  users x
+LEFT JOIN trades y ON x.user_id = y.user_id
+WHERE y.status = 'Completed'
+GROUP BY 1
+ORDER BY total_orders DESC
+LIMIT 3;
+</code></pre>
+</details>
